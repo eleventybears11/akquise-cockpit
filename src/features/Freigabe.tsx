@@ -9,6 +9,8 @@ import { hasWarning } from "../lib/normalize";
 import { navigate, useKeys, useNow } from "../lib/hooks";
 import { toast } from "../lib/toast";
 import { Badge, Button, Empty, ExtLink, PageHeader, ScoreBadge, Val } from "../components/ui";
+import { ResearchPanel } from "./ResearchPanel";
+import { BelegBadge } from "./LeadDetails";
 
 function sortOffen(a: Company, b: Company) {
   return (b.score ?? -1) - (a.score ?? -1) || (a.nr ?? 9999) - (b.nr ?? 9999);
@@ -85,6 +87,8 @@ export function Freigabe() {
         }
       />
 
+      <ResearchPanel />
+
       {data.faellig.length > 0 && (
         <section className="mb-6" aria-label="Fällige Wiedervorlagen">
           <h2 className="mb-2 text-sm font-semibold text-warn">Fällige Wiedervorlagen ({data.faellig.length}) – stehen oben in der Anrufliste</h2>
@@ -135,11 +139,11 @@ export function Freigabe() {
                         <Button className="!px-2.5 !py-1" variant="ghost" onClick={() => void decide([c.id], "raus")} aria-label={`${c.name} raus`}>Raus</Button>
                       </div>
                     </td>
-                    <td className="px-3 py-2.5"><ScoreBadge score={c.score} /></td>
+                    <td className="px-3 py-2.5" title={c.teilscores?.map((t) => `${t.kriterium}: ${t.punkte} – ${t.begruendung}`).join("\n")}><ScoreBadge score={c.score} /></td>
                     <td className="px-3 py-2.5 min-w-32">{c.ort}</td>
                     <td className="px-3 py-2.5 min-w-60">{c.anlass}</td>
                     <td className="px-3 py-2.5 min-w-72">{c.einstiegssatz ? c.einstiegssatz : <Val v="" />}</td>
-                    <td className="px-3 py-2.5 min-w-40"><Val v={c.gf} /></td>
+                    <td className="px-3 py-2.5 min-w-40"><Val v={c.gf} /><BelegBadge c={c} feld="gf" /></td>
                     <td className="px-3 py-2.5 whitespace-nowrap"><Val v={c.telefon} /></td>
                     <td className="px-3 py-2.5"><ExtLink value={c.website} /></td>
                     <td className="px-3 py-2.5"><Val v={c.ma} /></td>

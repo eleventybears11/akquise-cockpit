@@ -6,6 +6,7 @@ import { db } from "./db";
 import { DEFAULT_PROFILE, DEFAULT_SETTINGS } from "./defaults";
 import type { Backup, Call, CallResult, Company, Enrichment, Freigabe, Profile, Settings } from "./types";
 import type { CompanyDraft } from "../lib/csv";
+import { normalizeName } from "../lib/normalize";
 
 const now = () => new Date().toISOString();
 const uid = () => crypto.randomUUID();
@@ -152,15 +153,29 @@ export async function deleteEnrichment(id: string): Promise<void> {
   await db.enrichments.delete(id);
 }
 
+export async function importExclusions(names: string[], quelle: string): Promise<number> {
+  const rows = names
+    .map((name) => ({ name: name.trim(), normName: normalizeName(name), quelle }))
+    .filter((r) => r.normName);
+  await db.exclusions.bulkPut(rows);
+  return db.exclusions.count();
+}
+
+export async function clearExclusions(): Promise<void> {
+  await db.exclusions.clear();
+}
+
 export async function exportBackup(): Promise<Backup> {
-  const [companies, calls, enrichments, profiles, settings] = await Promise.all([
+  const [companies, calls, enrichments, runs, exclusions, profiles, settings] = await Promise.all([
     db.companies.toArray(),
     db.calls.toArray(),
     db.enrichments.toArray(),
+    db.runs.toArray(),
+    db.exclusions.toArray(),
     db.profiles.toArray(),
     getSettings(),
   ]);
-  return { app: "lead-cockpit", version: 1, exportedAt: now(), companies, calls, enrichments, profiles, settings };
+  return { app: "lead-cockpit", version: 1, exportedAt: now(), companies, calls, enrichments, runs, exclusions, profiles, settings };
 }
 
 export function isBackup(value: unknown): value is Backup {
@@ -178,8 +193,10 @@ export function isBackup(value: unknown): value is Backup {
 
 /** Ersetzt alle Daten durch das Backup. */
 export async function restoreBackup(backup: Backup): Promise<void> {
-  await db.transaction("rw", [db.companies, db.calls, db.enrichments, db.profiles, db.meta], async () => {
-    await Promise.all([db.companies.clear(), db.calls.clear(), db.enrichments.clear(), db.profiles.clear()]);
+  await db.transaction("rw", [db.companies, db.calls, db.enrichments, db.runs, db.exclusions, db.profiles, db.meta], async () => {
+    await Promise.all([db.companies.clear(), db.calls.clear(), db.enrichments.clear(), db.runs.clear(), db.exclusions.clear(), db.profiles.clear()]);
+    await db.runs.bulkAdd(backup.runs ?? []);
+    await db.exclusions.bulkAdd(backup.exclusions ?? []);
     await db.companies.bulkAdd(backup.companies);
     await db.calls.bulkAdd(backup.calls);
     await db.enrichments.bulkAdd(backup.enrichments ?? []);

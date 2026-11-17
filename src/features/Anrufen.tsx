@@ -9,6 +9,7 @@ import { hasWarning, isOpen, parsePhones } from "../lib/normalize";
 import { navigate, useKeys, useNow, useProfile } from "../lib/hooks";
 import { lastCall, toast } from "../lib/toast";
 import { Badge, Button, Card, Empty, ExtLink, ScoreBadge, Val } from "../components/ui";
+import { BelegBadge, BreakEvenDetails, LeadEdit, ScoreDetails } from "./LeadDetails";
 
 const RESULTS: { key: string; ergebnis: CallResult; label: string; cls: string }[] = [
   { key: "1", ergebnis: "nicht_erreicht", label: "Nicht erreicht", cls: "" },
@@ -86,6 +87,7 @@ function Rundown({ c, position, total }: { c: Company; position: number; total: 
   const [gf, setGf] = useState(false);
   const [wv, setWv] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [edit, setEdit] = useState(false);
   const notizRef = useRef<HTMLTextAreaElement>(null);
   const wvRef = useRef<HTMLInputElement>(null);
   const calls = useLiveQuery(() => db.calls.where("companyId").equals(c.id).reverse().sortBy("ts"), [c.id], []);
@@ -138,7 +140,7 @@ function Rundown({ c, position, total }: { c: Company; position: number; total: 
 
   useKeys(
     (e) => {
-      if (wv !== null) return;
+      if (wv !== null || edit) return;
       const r = RESULTS.find((x) => x.key === e.key);
       if (r) {
         e.preventDefault();
@@ -152,12 +154,15 @@ function Rundown({ c, position, total }: { c: Company; position: number; total: 
       } else if (e.key === "u") {
         e.preventDefault();
         void undo();
+      } else if (e.key === "b") {
+        e.preventDefault();
+        setEdit(true);
       } else if (e.key === "t" && phones[0]) {
         e.preventDefault();
         window.location.href = `tel:${phones[0].tel}`;
       }
     },
-    [wv, notiz, gf, c.id, busy],
+    [wv, notiz, gf, c.id, busy, edit],
   );
 
   const remove = async () => {
@@ -188,17 +193,29 @@ function Rundown({ c, position, total }: { c: Company; position: number; total: 
               )}
             </div>
           </div>
-          <div className="text-right text-xs text-muted">{position >= 0 ? `${position + 1} von ${total}` : "nicht in der Anrufliste"}</div>
+          <div className="flex flex-col items-end gap-1 text-xs text-muted">
+            <span>{position >= 0 ? `${position + 1} von ${total}` : "nicht in der Anrufliste"}</span>
+            {!edit && (
+              <button type="button" className="hover:text-accent" onClick={() => setEdit(true)}>
+                Bearbeiten <kbd>b</kbd>
+              </button>
+            )}
+          </div>
         </div>
+
+        {edit ? (
+          <div className="mt-5"><LeadEdit c={c} onClose={() => setEdit(false)} /></div>
+        ) : (
+        <>
 
         {/* Kontakt */}
         <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
           <div>
             <div className="text-xs font-medium uppercase tracking-wide text-muted">Geschäftsführung</div>
-            <div className="mt-0.5 text-lg"><Val v={c.gf} /></div>
+            <div className="mt-0.5 text-lg"><Val v={c.gf} /><BelegBadge c={c} feld="gf" /></div>
           </div>
           <div>
-            <div className="text-xs font-medium uppercase tracking-wide text-muted">Telefon</div>
+            <div className="text-xs font-medium uppercase tracking-wide text-muted">Telefon<BelegBadge c={c} feld="telefon" /></div>
             <div className="mt-1 flex flex-wrap gap-2">
               {phones.length === 0 ? (
                 <span className="text-lg italic text-muted">offen</span>
@@ -225,7 +242,8 @@ function Rundown({ c, position, total }: { c: Company; position: number; total: 
         </div>
         <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-sm">
           <span><span className="text-muted">Website </span><ExtLink value={c.website} /></span>
-          <span><span className="text-muted">MA </span><Val v={c.ma} /></span>
+          <span><span className="text-muted">MA </span><Val v={c.ma} /><BelegBadge c={c} feld="mitarbeiter" /></span>
+          {c.zweitprodukt && <span><span className="text-muted">Zweitprodukt </span>{c.zweitprodukt}</span>}
           <span><span className="text-muted">Lead von </span>{c.leadOwner}</span>
           {emails.map((e) => (
             <span key={e.id}>
@@ -262,6 +280,7 @@ function Rundown({ c, position, total }: { c: Company; position: number; total: 
             <dd className="mt-0.5">
               {c.breakEven ? `${c.breakEven} Aufträge` : <Val v="" />}{" "}
               <span className="text-muted">bei {profile.mindestinvestition.toLocaleString("de-AT")} € netto ({profile.produkt})</span>
+              <BreakEvenDetails c={c} profile={profile} />
             </dd>
           </div>
           {!warn && (
@@ -280,6 +299,9 @@ function Rundown({ c, position, total }: { c: Company; position: number; total: 
               <dd className="mt-0.5">{c.letzterKontakt}</dd>
             </div>
           )}
+          {c.teilscores?.length ? (
+            <div className="sm:col-span-2"><ScoreDetails c={c} /></div>
+          ) : null}
         </dl>
 
         {calls.length > 0 && (
@@ -296,6 +318,8 @@ function Rundown({ c, position, total }: { c: Company; position: number; total: 
               ))}
             </ul>
           </div>
+        )}
+        </>
         )}
       </div>
 

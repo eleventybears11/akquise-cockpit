@@ -34,6 +34,7 @@ const GROUPS: { title: string; keys: [string, string][] }[] = [
       ["e", "mit GF gesprochen"],
       ["n", "Notiz schreiben (Esc verlässt)"],
       ["u", "letzten Anruf rückgängig"],
+      ["b", "Lead bearbeiten (Esc bricht ab)"],
     ],
   },
 ];

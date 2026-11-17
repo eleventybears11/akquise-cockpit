@@ -53,7 +53,8 @@ export function useSettings(): Settings {
 
 export function useProfile(): Profile {
   const settings = useSettings();
-  return useLiveQuery(async () => (await db.profiles.get(settings.aktivesProfil)) ?? DEFAULT_PROFILE, [settings.aktivesProfil], DEFAULT_PROFILE);
+  // Neue Profilfelder (z. B. ab M2) mit Standardwerten ergänzen
+  return useLiveQuery(async () => ({ ...DEFAULT_PROFILE, ...(await db.profiles.get(settings.aktivesProfil)) }), [settings.aktivesProfil], DEFAULT_PROFILE);
 }
 
 /** Ist der Fokus in einem Eingabefeld? Dann greifen Tastaturkürzel nicht. */
