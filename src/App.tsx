@@ -14,6 +14,8 @@ import { Anreichern } from "./features/Anreichern";
 import { Einstellungen } from "./features/Einstellungen";
 import { BackupBanner } from "./features/BackupBanner";
 import { Hilfe } from "./features/Hilfe";
+import { useTageslisteFaellig } from "./features/ResearchPanel";
+import { starteLauf, useResearch } from "./research/store";
 
 const NAV: { view: Route["view"]; label: string; key: string }[] = [
   { view: "freigabe", label: "Freigabe", key: "f" },
@@ -89,6 +91,31 @@ function Toaster() {
           )}
         </div>
       ))}
+    </div>
+  );
+}
+
+function TageslisteBanner() {
+  const now = useNow();
+  const settings = useSettings();
+  const faellig = useTageslisteFaellig(now);
+  const { laeuft } = useResearch();
+  if (!faellig || laeuft) return null;
+  return (
+    <div className="border-b border-line bg-accent-soft">
+      <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm text-accent">
+        <span>Für heute gibt es noch keine Tagesliste.</span>
+        <button
+          type="button"
+          className="rounded-lg bg-accent px-3 py-1 font-medium text-accent-ink hover:opacity-90"
+          onClick={() => {
+            navigate("freigabe");
+            void starteLauf(settings.tageszielNeueLeads);
+          }}
+        >
+          Jetzt {settings.tageszielNeueLeads} Leads recherchieren
+        </button>
+      </div>
     </div>
   );
 }
@@ -174,6 +201,7 @@ export function App() {
         </div>
       </header>
       <BackupBanner />
+      <TageslisteBanner />
       <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 py-6">
         {route.view === "freigabe" && <Freigabe />}
         {route.view === "anrufen" && <Anrufen id={route.id} />}

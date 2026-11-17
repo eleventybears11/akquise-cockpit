@@ -13,3 +13,9 @@
 | 17.11.2026 | `.npmrc` mit `legacy-peer-deps` | npm-Fehler („edgesOut“) bei optionalen Peer-Abhängigkeiten von vitest. |
 | 17.11.2026 | FullEnrich per CSV statt API | API getestet: keine CORS-Freigabe (OPTIONS → 404, kein `Access-Control-Allow-Origin`), Aufruf aus dem Browser unmöglich. Entscheidung David: CSV-Weg, kein Proxy-Server. |
 | 17.11.2026 | Angereicherte Daten in eigener Tabelle `enrichments` (DB-Version 2) mit Quelle, nie in die Stammdaten geschrieben | Regel „nichts überschreiben“, Herkunft nachvollziehbar (DSGVO, Hinweis „öffentliche GF-Nummer“ für DE). |
+| 17.11.2026 | KI-Recherche direkt aus dem Browser (Anthropic-SDK mit `dangerouslyAllowBrowser`), Key nur im localStorage | Vorgabe P2, kein Server. Key nie in Backup/Export; CSP erlaubt nur `api.anthropic.com`. |
+| 17.11.2026 | Standardmodell Claude Opus 5.5, wählbar Sonnet 5.5 / Haiku 5.5; serverseitiger Fallback bei Ablehnung (Opus/Sonnet) | Prüfqualität („nichts erfinden“) wichtiger als Kosten; Wahl liegt bei David. |
+| 17.11.2026 | KI liefert nur Rohdaten; Quellenprüfung, Filter, Score (gewichtet) und Break-even rechnet die App deterministisch | Erfundene URLs/Zahlen werden erkannt; Margen nie von der KI. |
+| 17.11.2026 | Belege (Fakt/Hypothese/offen + Quelle) als Feld `belege` am Lead statt eigener Tabelle | Einfacher, reicht für Anzeige und Prüfung; Tabelle bei Bedarf später per Migration. |
+| 17.11.2026 | Namen/Nummern/MA ohne Quelle aus den Suchergebnissen → „offen“; GF ohne offizielle Quelle/Impressum → „Hypothese“ | Harte Regel 1 aus CLAUDE.md. |
+| 17.11.2026 | Anthropic-SDK wird erst bei Bedarf nachgeladen | App-Start ~40 % kleiner. |

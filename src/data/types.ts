@@ -14,6 +14,32 @@ export type LeadStatus = "neu" | "anrufliste" | "wiedervorlage" | "termin" | "ab
 
 export type CallResult = "nicht_erreicht" | "absage" | "wiedervorlage" | "termin";
 
+export type BelegStatus = "fakt" | "hypothese" | "offen";
+
+/** Einzelne Aussage zu einem Lead mit Status und Quelle (aus der KI-Recherche). */
+export interface Beleg {
+  feld: "anlass" | "gf" | "telefon" | "mitarbeiter" | "website";
+  wert: string;
+  status: BelegStatus;
+  quelle: string;
+  /** Hinweis aus der Prüfung, z. B. „Quelle nicht in den Suchergebnissen“ */
+  pruefung?: string;
+}
+
+export interface Teilscore {
+  kriterium: ScoreKriterium;
+  punkte: number;
+  begruendung: string;
+}
+
+export type ScoreKriterium = "wachstum" | "produktFit" | "leistungsfaehigkeit" | "erreichbarkeit" | "bedarf";
+
+export interface BreakEvenSzenario {
+  szenario: "konservativ" | "realistisch" | "optimistisch";
+  dbProAuftrag: number;
+  auftraege: number;
+}
+
 export interface Company {
   id: string;
   nr?: number;
@@ -44,6 +70,14 @@ export interface Company {
   leadOwner: string;
   /** Zeitpunkt des letzten „nicht erreicht“ (ISO), für die Reihenfolge in der Anrufliste */
   letzterVersuch?: string;
+  /* --- ab M2 (KI-Recherche), alle optional --- */
+  gewerk?: Gewerk;
+  zweitprodukt?: string;
+  teilscores?: Teilscore[];
+  breakEvenSzenarien?: BreakEvenSzenario[];
+  belege?: Beleg[];
+  /** Recherche-Lauf, aus dem der Lead stammt */
+  runId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -61,6 +95,8 @@ export interface Call {
   vorher: Pick<Company, "status" | "wiedervorlage" | "letzterVersuch" | "letzterKontakt">;
 }
 
+export type Gewerk = "haustechnik" | "pv" | "elektro" | "klima" | "gebaeudetechnik" | "dach" | "erdbau" | "sonstiges";
+
 export interface Profile {
   id: string;
   name: string;
@@ -69,6 +105,18 @@ export interface Profile {
   erstfrage: string;
   terminEmpfaenger: string[];
   leadOwner: string;
+  /* --- ab M2: Regeln für die KI-Recherche --- */
+  produktBeschreibung: string;
+  referenz: string;
+  gespraechsargument: string;
+  zweitprodukte: string;
+  branchen: string[];
+  gebiete: string[];
+  minMitarbeiter: number;
+  wachstumssignale: string;
+  /** Deckungsbeitrag pro zusätzlichem Auftrag in €, [von, bis] */
+  dbAnnahmen: Record<"haustechnik" | "pv" | "elektro" | "sonstiges", [number, number]>;
+  gewichte: Record<ScoreKriterium, number>;
 }
 
 export interface Settings {
@@ -78,6 +126,41 @@ export interface Settings {
   startpaket: number;
   lastBackupAt?: string;
   theme: "system" | "hell" | "dunkel";
+  /* --- ab M2 --- */
+  modell: ModellId;
+  aufwand: "low" | "medium" | "high";
+  testmodus: boolean;
+  /** Abbruch eines Laufs, wenn die geschätzten Kosten diesen Betrag (USD) übersteigen */
+  maxKostenProLauf: number;
+}
+
+export type ModellId = "claude-opus-5-5" | "claude-sonnet-5-5" | "claude-haiku-5-5";
+
+export interface RunLogEntry {
+  ts: string;
+  text: string;
+  art?: "info" | "ok" | "warn" | "fehler";
+}
+
+export interface ResearchRun {
+  id: string;
+  startedAt: string;
+  finishedAt?: string;
+  status: "laeuft" | "fertig" | "abgebrochen" | "fehler";
+  ziel: number;
+  modell: ModellId | "test";
+  leadIds: string[];
+  verworfen: number;
+  usage: { inputTokens: number; outputTokens: number; cacheReadTokens: number; cacheWriteTokens: number; suchen: number; abrufe: number };
+  kostenUsd: number;
+  log: RunLogEntry[];
+  fehler?: string;
+}
+
+export interface Exclusion {
+  normName: string;
+  name: string;
+  quelle: string;
 }
 
 /** Kontaktdaten aus einer externen Quelle (z. B. FullEnrich), getrennt von den Stammdaten. */
@@ -100,6 +183,8 @@ export interface Backup {
   calls: Call[];
   /** ab App-Version mit FullEnrich; fehlt in älteren Backups */
   enrichments?: Enrichment[];
+  runs?: ResearchRun[];
+  exclusions?: Exclusion[];
   profiles: Profile[];
   settings: Settings;
 }
