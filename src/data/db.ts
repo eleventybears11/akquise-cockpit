@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from "dexie";
-import type { Call, Company, Profile, Settings } from "./types";
+import type { Call, Company, Enrichment, Profile, Settings } from "./types";
 
 export interface MetaRow {
   key: "settings";
@@ -9,6 +9,7 @@ export interface MetaRow {
 export class CockpitDB extends Dexie {
   companies!: EntityTable<Company, "id">;
   calls!: EntityTable<Call, "id">;
+  enrichments!: EntityTable<Enrichment, "id">;
   profiles!: EntityTable<Profile, "id">;
   meta!: EntityTable<MetaRow, "key">;
 
@@ -20,6 +21,9 @@ export class CockpitDB extends Dexie {
       calls: "id, companyId, ts",
       profiles: "id",
       meta: "key",
+    });
+    this.version(2).stores({
+      enrichments: "id, companyId",
     });
   }
 }

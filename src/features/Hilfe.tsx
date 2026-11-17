@@ -9,6 +9,7 @@ const GROUPS: { title: string; keys: [string, string][] }[] = [
       ["g w", "Wiedervorlagen"],
       ["g l", "Alle Leads"],
       ["g i", "Import"],
+      ["g r", "Anreichern (FullEnrich)"],
       ["g e", "Einstellungen"],
       ["?", "diese Hilfe"],
     ],

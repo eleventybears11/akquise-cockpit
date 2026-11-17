@@ -11,3 +11,5 @@
 | 17.11.2026 | Import: „Im CRM“ = freigegeben; Wiedervorlage-Datum → Status Wiedervorlage; „Absage“ im letzten Kontakt → abgeschlossen | Passt zu Davids bestehender Tabelle. |
 | 17.11.2026 | Montagvormittag: nur Hinweis, Anrufliste bleibt nutzbar | Standard, da keine Antwort; leicht änderbar. |
 | 17.11.2026 | `.npmrc` mit `legacy-peer-deps` | npm-Fehler („edgesOut“) bei optionalen Peer-Abhängigkeiten von vitest. |
+| 17.11.2026 | FullEnrich per CSV statt API | API getestet: keine CORS-Freigabe (OPTIONS → 404, kein `Access-Control-Allow-Origin`), Aufruf aus dem Browser unmöglich. Entscheidung David: CSV-Weg, kein Proxy-Server. |
+| 17.11.2026 | Angereicherte Daten in eigener Tabelle `enrichments` (DB-Version 2) mit Quelle, nie in die Stammdaten geschrieben | Regel „nichts überschreiben“, Herkunft nachvollziehbar (DSGVO, Hinweis „öffentliche GF-Nummer“ für DE). |

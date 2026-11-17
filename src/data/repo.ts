@@ -4,7 +4,7 @@
  */
 import { db } from "./db";
 import { DEFAULT_PROFILE, DEFAULT_SETTINGS } from "./defaults";
-import type { Backup, Call, CallResult, Company, Freigabe, Profile, Settings } from "./types";
+import type { Backup, Call, CallResult, Company, Enrichment, Freigabe, Profile, Settings } from "./types";
 import type { CompanyDraft } from "../lib/csv";
 
 const now = () => new Date().toISOString();
@@ -59,8 +59,9 @@ export async function updateCompany(id: string, patch: Partial<Company>): Promis
 
 /** Löscht einen Lead samt Anrufen (DSGVO: Löschung auf Wunsch). */
 export async function deleteCompany(id: string): Promise<void> {
-  await db.transaction("rw", db.companies, db.calls, async () => {
+  await db.transaction("rw", db.companies, db.calls, db.enrichments, async () => {
     await db.calls.where("companyId").equals(id).delete();
+    await db.enrichments.where("companyId").equals(id).delete();
     await db.companies.delete(id);
   });
 }
@@ -141,14 +142,25 @@ export async function undoCall(callId: string): Promise<void> {
   });
 }
 
+export async function addEnrichments(items: Omit<Enrichment, "id" | "importedAt">[]): Promise<number> {
+  const ts = now();
+  await db.enrichments.bulkAdd(items.map((e) => ({ ...e, id: uid(), importedAt: ts })));
+  return items.length;
+}
+
+export async function deleteEnrichment(id: string): Promise<void> {
+  await db.enrichments.delete(id);
+}
+
 export async function exportBackup(): Promise<Backup> {
-  const [companies, calls, profiles, settings] = await Promise.all([
+  const [companies, calls, enrichments, profiles, settings] = await Promise.all([
     db.companies.toArray(),
     db.calls.toArray(),
+    db.enrichments.toArray(),
     db.profiles.toArray(),
     getSettings(),
   ]);
-  return { app: "lead-cockpit", version: 1, exportedAt: now(), companies, calls, profiles, settings };
+  return { app: "lead-cockpit", version: 1, exportedAt: now(), companies, calls, enrichments, profiles, settings };
 }
 
 export function isBackup(value: unknown): value is Backup {
@@ -166,10 +178,11 @@ export function isBackup(value: unknown): value is Backup {
 
 /** Ersetzt alle Daten durch das Backup. */
 export async function restoreBackup(backup: Backup): Promise<void> {
-  await db.transaction("rw", db.companies, db.calls, db.profiles, db.meta, async () => {
-    await Promise.all([db.companies.clear(), db.calls.clear(), db.profiles.clear()]);
+  await db.transaction("rw", [db.companies, db.calls, db.enrichments, db.profiles, db.meta], async () => {
+    await Promise.all([db.companies.clear(), db.calls.clear(), db.enrichments.clear(), db.profiles.clear()]);
     await db.companies.bulkAdd(backup.companies);
     await db.calls.bulkAdd(backup.calls);
+    await db.enrichments.bulkAdd(backup.enrichments ?? []);
     await db.profiles.bulkAdd(backup.profiles);
     await db.meta.put({ key: "settings", value: { ...DEFAULT_SETTINGS, ...backup.settings } });
   });
@@ -177,7 +190,7 @@ export async function restoreBackup(backup: Backup): Promise<void> {
 }
 
 export async function deleteAll(): Promise<void> {
-  await db.transaction("rw", db.companies, db.calls, async () => {
-    await Promise.all([db.companies.clear(), db.calls.clear()]);
+  await db.transaction("rw", db.companies, db.calls, db.enrichments, async () => {
+    await Promise.all([db.companies.clear(), db.calls.clear(), db.enrichments.clear()]);
   });
 }

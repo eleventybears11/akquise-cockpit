@@ -10,6 +10,7 @@ export type Route =
   | { view: "wiedervorlagen" }
   | { view: "leads" }
   | { view: "import" }
+  | { view: "anreichern" }
   | { view: "einstellungen" };
 
 export function parseHash(hash: string): Route {
@@ -23,6 +24,8 @@ export function parseHash(hash: string): Route {
       return { view: "leads" };
     case "import":
       return { view: "import" };
+    case "anreichern":
+      return { view: "anreichern" };
     case "einstellungen":
       return { view: "einstellungen" };
     default:
