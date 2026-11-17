@@ -1,0 +1,9 @@
+node_modules
+dist
+test-results
+playwright-report
+*.local
+.DS_Store
+# echte Lead-Daten nie ins Repo
+*.leads.csv
+backup-*.json
