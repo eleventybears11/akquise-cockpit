@@ -1,7 +1,8 @@
 # Tests
 
 - **Unit (Vitest):** `npm test` – CSV-Import (Spalten-Erkennung, Status-Ableitung, Dubletten, Semikolon-CSV, Export/Re-Import), Reihenfolge der Anrufliste, Tageszähler, Telefon-/URL-/Namens-Normalisierung, Datumslogik.
-- **E2E (Playwright):** `npm run e2e` – baut die App, startet `vite preview` und spielt den Tagesablauf durch: Import → Freigabe per Tastatur → Dubletten beim Re-Import → Anrufen mit 1/3/4, Notiz, Rückgängig → Neu laden (Daten bleiben) → Wiedervorlagen/Leads-Filter → Backup herunterladen, alles löschen, Backup einspielen → CSV-Export.
+- **Unit FullEnrich:** GF-Feld-Zerlegung (Titel, Notizen in Klammern, „&“ mit gemeinsamem Nachnamen, mehrere GF), Domain, Export-Spalten, Zuordnung und Dublettenschutz beim Rück-Import.
+- **E2E (Playwright):** `npm run e2e` – baut die App, startet `vite preview` und spielt den Tagesablauf durch: Import → Freigabe per Tastatur → Dubletten beim Re-Import → Anrufen mit 1/3/4, Notiz, Rückgängig → Neu laden (Daten bleiben) → Wiedervorlagen/Leads-Filter → Backup herunterladen, alles löschen, Backup einspielen → CSV-Export. Zusätzlich `e2e/anreichern.spec.ts`: FullEnrich-Export, simuliertes Ergebnis importieren, erneuter Import ohne Dubletten, Nummer/E-Mail auf der Rundown-Karte, Backup enthält die Angaben.
 - **Testdaten:** nur `e2e/fixtures/demo-leads.csv` (erfundene DEMO-Firmen). Echte Leads nie ins Repo.
 - **CI:** `.github/workflows/ci.yml` führt Lint, Typen, Unit, Build und E2E bei jedem PR aus.
 - **Vor „fertig“:** `npm run check && npm run e2e` muss grün sein.

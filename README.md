@@ -8,8 +8,9 @@ Browser-App für die telefonische B2B-Kaltakquise: Leads freigeben, telefonieren
 2. **Import** → Lead-Tabelle als CSV wählen → „Leads importieren“.
 3. **Freigabe**: `r` rein, `x` raus, `Shift+A` alle rein.
 4. **Anrufen**: `t` wählt die Nummer, nach dem Gespräch `1` nicht erreicht, `2` Absage, `3` Wiedervorlage, `4` Termin. `u` macht den letzten Anruf rückgängig.
-5. **Einstellungen → Backup herunterladen** mindestens einmal pro Woche (die App erinnert daran).
-6. `?` zeigt alle Tastaturkürzel.
+5. **Anreichern**: CSV für FullEnrich herunterladen → in FullEnrich hochladen → Ergebnis-CSV hier importieren und bestätigen. Gefundene Handynummern erscheinen auf der Rundown-Karte mit Quelle „FullEnrich“.
+6. **Einstellungen → Backup herunterladen** mindestens einmal pro Woche (die App erinnert daran).
+7. `?` zeigt alle Tastaturkürzel.
 
 ## Entwicklung
 

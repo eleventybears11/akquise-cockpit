@@ -80,12 +80,26 @@ export interface Settings {
   theme: "system" | "hell" | "dunkel";
 }
 
+/** Kontaktdaten aus einer externen Quelle (z. B. FullEnrich), getrennt von den Stammdaten. */
+export interface Enrichment {
+  id: string;
+  companyId: string;
+  /** Person, zu der die Angabe gehört */
+  person: string;
+  typ: "telefon" | "email";
+  wert: string;
+  quelle: string;
+  importedAt: string;
+}
+
 export interface Backup {
   app: "lead-cockpit";
   version: 1;
   exportedAt: string;
   companies: Company[];
   calls: Call[];
+  /** ab App-Version mit FullEnrich; fehlt in älteren Backups */
+  enrichments?: Enrichment[];
   profiles: Profile[];
   settings: Settings;
 }

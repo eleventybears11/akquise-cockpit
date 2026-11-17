@@ -10,6 +10,7 @@ import { Anrufen } from "./features/Anrufen";
 import { Wiedervorlagen } from "./features/Wiedervorlagen";
 import { Leads } from "./features/Leads";
 import { Import } from "./features/Import";
+import { Anreichern } from "./features/Anreichern";
 import { Einstellungen } from "./features/Einstellungen";
 import { BackupBanner } from "./features/BackupBanner";
 import { Hilfe } from "./features/Hilfe";
@@ -20,6 +21,7 @@ const NAV: { view: Route["view"]; label: string; key: string }[] = [
   { view: "wiedervorlagen", label: "Wiedervorlagen", key: "w" },
   { view: "leads", label: "Alle Leads", key: "l" },
   { view: "import", label: "Import", key: "i" },
+  { view: "anreichern", label: "Anreichern", key: "r" },
   { view: "einstellungen", label: "Einstellungen", key: "e" },
 ];
 
@@ -55,8 +57,8 @@ function DayCounter() {
           <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${pct}%` }} />
         </div>
       </div>
-      <span className="hidden sm:inline"><b className="text-ink tabular-nums">{s.erreicht}</b> erreicht</span>
-      <span className="hidden md:inline"><b className="text-ink tabular-nums">{s.gfGespraeche}</b> GF-Gespräche</span>
+      <span className="hidden 2xl:inline"><b className="text-ink tabular-nums">{s.erreicht}</b> erreicht</span>
+      <span className="hidden 2xl:inline"><b className="text-ink tabular-nums">{s.gfGespraeche}</b> GF-Gespräche</span>
       <span><b className="text-ok tabular-nums" data-testid="termine">{s.termine}</b> Termine</span>
     </div>
   );
@@ -155,7 +157,7 @@ export function App() {
                 <a
                   key={n.view}
                   href={`#/${n.view}`}
-                  title={`g ${n.key}`}
+                  title={`Taste g, dann ${n.key}`}
                   aria-current={active ? "page" : undefined}
                   className={`flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm ${active ? "bg-accent-soft text-accent font-medium" : "text-muted hover:text-ink hover:bg-surface-2"}`}
                 >
@@ -167,7 +169,7 @@ export function App() {
           </nav>
           <DayCounter />
           <button type="button" className="text-xs text-muted hover:text-ink" onClick={() => setHelp(true)}>
-            <kbd>?</kbd> Kürzel
+            <kbd>?</kbd> <span className="hidden 2xl:inline">Kürzel</span>
           </button>
         </div>
       </header>
@@ -178,6 +180,7 @@ export function App() {
         {route.view === "wiedervorlagen" && <Wiedervorlagen />}
         {route.view === "leads" && <Leads />}
         {route.view === "import" && <Import />}
+        {route.view === "anreichern" && <Anreichern />}
         {route.view === "einstellungen" && <Einstellungen />}
       </main>
       {help && <Hilfe onClose={() => setHelp(false)} />}

@@ -89,7 +89,12 @@ function Rundown({ c, position, total }: { c: Company; position: number; total: 
   const notizRef = useRef<HTMLTextAreaElement>(null);
   const wvRef = useRef<HTMLInputElement>(null);
   const calls = useLiveQuery(() => db.calls.where("companyId").equals(c.id).reverse().sortBy("ts"), [c.id], []);
-  const phones = parsePhones(c.telefon);
+  const enrichments = useLiveQuery(() => db.enrichments.where("companyId").equals(c.id).toArray(), [c.id], []);
+  const extraPhones = enrichments
+    .filter((e) => e.typ === "telefon")
+    .flatMap((e) => parsePhones(e.wert).map((p) => ({ ...p, person: e.person, quelle: e.quelle })));
+  const emails = enrichments.filter((e) => e.typ === "email");
+  const phones: { label: string; tel: string; quelle?: string; person?: string }[] = [...parsePhones(c.telefon), ...extraPhones];
   const warn = hasWarning(c.hinweis);
   const today = isoDate();
 
@@ -202,10 +207,16 @@ function Rundown({ c, position, total }: { c: Company; position: number; total: 
                   <a
                     key={p.tel + i}
                     href={`tel:${p.tel}`}
-                    className="rounded-lg bg-accent px-4 py-2 text-lg font-semibold tabular-nums text-accent-ink hover:opacity-90"
+                    className={`flex flex-col rounded-lg px-4 py-2 text-lg font-semibold tabular-nums hover:opacity-90 ${p.quelle ? "border border-accent text-accent" : "bg-accent text-accent-ink"}`}
                     title={i === 0 ? "Taste t" : undefined}
                   >
                     {p.label}
+                    {p.quelle && (
+                      <span className="text-xs font-normal">
+                        {p.quelle}
+                        {p.person ? ` · ${p.person}` : ""}
+                      </span>
+                    )}
                   </a>
                 ))
               )}
@@ -216,6 +227,13 @@ function Rundown({ c, position, total }: { c: Company; position: number; total: 
           <span><span className="text-muted">Website </span><ExtLink value={c.website} /></span>
           <span><span className="text-muted">MA </span><Val v={c.ma} /></span>
           <span><span className="text-muted">Lead von </span>{c.leadOwner}</span>
+          {emails.map((e) => (
+            <span key={e.id}>
+              <span className="text-muted">E-Mail </span>
+              <a href={`mailto:${e.wert}`} className="text-accent hover:underline">{e.wert}</a>
+              <span className="text-xs text-muted"> ({e.quelle}{e.person ? `, ${e.person}` : ""})</span>
+            </span>
+          ))}
         </div>
 
         {warn && (
