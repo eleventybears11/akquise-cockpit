@@ -78,7 +78,7 @@ test("M1: importieren, freigeben, telefonieren, rückgängig, neu laden, sichern
   await page.goto("/#/wiedervorlagen");
   await expect(page.getByTestId("wv-tabelle").locator("tbody tr")).toHaveCount(2);
   await page.goto("/#/leads");
-  await page.getByRole("button", { name: /^Termin/ }).click();
+  await page.getByRole("tab", { name: /^Termin/ }).click();
   await expect(page.getByTestId("leads-tabelle")).toContainText("DEMO Sonnen PV GmbH");
 
   // Backup herunterladen, alles löschen, Backup einspielen

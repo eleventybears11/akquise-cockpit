@@ -11,6 +11,7 @@ import { toast } from "../lib/toast";
 import { Badge, Button, Empty, ExtLink, PageHeader, ScoreBadge, Val } from "../components/ui";
 import { ResearchPanel } from "./ResearchPanel";
 import { BelegBadge } from "./LeadDetails";
+import { NeueLeadsButton } from "./NeueLeads";
 
 function sortOffen(a: Company, b: Company) {
   return (b.score ?? -1) - (a.score ?? -1) || (a.nr ?? 9999) - (b.nr ?? 9999);
@@ -80,7 +81,7 @@ export function Freigabe() {
         actions={
           <>
             <Button onClick={() => navigate("import")}>CSV importieren</Button>
-            <Button variant="primary" disabled={offen.length === 0} onClick={() => void decide(offen.map((c) => c.id), "rein")}>
+            <Button disabled={offen.length === 0} onClick={() => void decide(offen.map((c) => c.id), "rein")}>
               Alle rein ({offen.length})
             </Button>
           </>
@@ -91,10 +92,10 @@ export function Freigabe() {
 
       {data.faellig.length > 0 && (
         <section className="mb-6" aria-label="Fällige Wiedervorlagen">
-          <h2 className="mb-2 text-sm font-semibold text-warn">Fällige Wiedervorlagen ({data.faellig.length}) – stehen oben in der Anrufliste</h2>
+          <h2 className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-warn">Fällige Wiedervorlagen ({data.faellig.length}) <span className="font-normal text-muted">– stehen oben in der Anrufliste</span></h2>
           <div className="flex flex-wrap gap-2">
             {data.faellig.map((c) => (
-              <a key={c.id} href={`#/anrufen/${c.id}`} className="rounded-lg border border-line bg-warn-soft px-3 py-1.5 text-sm hover:border-warn">
+              <a key={c.id} href={`#/anrufen/${c.id}`} className="rounded-full border border-warn/30 bg-warn-soft px-3.5 py-1.5 text-sm transition hover:border-warn">
                 <span className="font-medium">{c.name}</span> <span className="text-muted">· seit {formatDate(c.wiedervorlage)}</span>
               </a>
             ))}
@@ -103,19 +104,24 @@ export function Freigabe() {
       )}
 
       {offen.length === 0 ? (
-        <Empty>
-          Keine Leads zur Freigabe.{" "}
-          <a href="#/import" className="text-accent hover:underline">CSV importieren</a> oder in der{" "}
-          <a href="#/anrufen" className="text-accent hover:underline">Anrufliste</a> weitermachen.
+        <Empty action={<NeueLeadsButton />}>
+          <p className="font-medium text-ink">Keine Leads zur Freigabe</p>
+          <p className="mt-1 text-sm">
+            Neue Leads holen, <a href="#/import" className="text-accent hover:underline">CSV importieren</a> oder in der{" "}
+            <a href="#/anrufen" className="text-accent hover:underline">Anrufliste</a> weitermachen.
+          </p>
         </Empty>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-line bg-surface">
-          <table className="w-full min-w-[1500px] border-collapse text-sm" data-testid="freigabe-tabelle">
-            <thead className="bg-surface-2 text-left text-xs uppercase tracking-wide text-muted">
-              <tr>
-                {["Nr", "Firma", "Freigabe", "Score", "Ort", "Anlass + Datum", "Einstiegssatz", "GF", "Telefon", "Website", "MA", "Break-even", "Offene Punkte / Hinweis", "Quelle"].map((h) => (
-                  <th key={h} className="px-3 py-2 font-medium whitespace-nowrap">{h}</th>
-                ))}
+        <div className="overflow-x-auto rounded-2xl border border-line bg-surface shadow-card">
+          <table className="w-full min-w-[1040px] table-fixed border-collapse text-sm" data-testid="freigabe-tabelle">
+            <thead className="text-left text-xs uppercase tracking-wide text-muted">
+              <tr className="border-b border-line">
+                <th className="w-14 px-4 py-3 font-medium">Nr</th>
+                <th className="w-[20%] px-4 py-3 font-medium">Firma</th>
+                <th className="w-[32%] px-4 py-3 font-medium">Anlass & Einstieg</th>
+                <th className="w-[18%] px-4 py-3 font-medium">Kontakt</th>
+                <th className="px-4 py-3 font-medium">Details</th>
+                <th className="w-44 px-4 py-3 text-right font-medium">Freigabe</th>
               </tr>
             </thead>
             <tbody>
@@ -129,29 +135,38 @@ export function Freigabe() {
                     }}
                     onClick={() => setSel(i)}
                     aria-selected={active}
-                    className={`border-t border-line align-top ${active ? "bg-accent-soft/60 outline-2 -outline-offset-2 outline-accent" : "hover:bg-surface-2"}`}
+                    className={`border-t border-line/70 align-top transition ${active ? "bg-accent-soft/50 shadow-[inset_3px_0_0_var(--accent)]" : "hover:bg-surface-2/60"}`}
                   >
-                    <td className="px-3 py-2.5 tabular-nums text-muted">{c.nr ?? ""}</td>
-                    <td className="px-3 py-2.5 font-medium min-w-44">{c.name}</td>
-                    <td className="px-3 py-2.5">
-                      <div className="flex gap-1">
-                        <Button className="!px-2.5 !py-1" variant="secondary" onClick={() => void decide([c.id], "rein")} aria-label={`${c.name} rein`}>Rein</Button>
-                        <Button className="!px-2.5 !py-1" variant="ghost" onClick={() => void decide([c.id], "raus")} aria-label={`${c.name} raus`}>Raus</Button>
+                    <td className="px-4 py-4 tabular-nums text-muted">{c.nr ?? ""}</td>
+                    <td className="px-4 py-4">
+                      <div className="font-semibold leading-snug">{c.name}</div>
+                      <div className="mt-0.5 text-xs text-muted">{c.ort}</div>
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5" title={c.teilscores?.map((t) => `${t.kriterium}: ${t.punkte} – ${t.begruendung}`).join("\n")}>
+                        <span className="text-xs text-muted">Score</span> <ScoreBadge score={c.score} />
+                        {c.leadTyp && <Badge>{c.leadTyp}</Badge>}
                       </div>
                     </td>
-                    <td className="px-3 py-2.5" title={c.teilscores?.map((t) => `${t.kriterium}: ${t.punkte} – ${t.begruendung}`).join("\n")}><ScoreBadge score={c.score} /></td>
-                    <td className="px-3 py-2.5 min-w-32">{c.ort}</td>
-                    <td className="px-3 py-2.5 min-w-60">{c.anlass}</td>
-                    <td className="px-3 py-2.5 min-w-72">{c.einstiegssatz ? c.einstiegssatz : <Val v="" />}</td>
-                    <td className="px-3 py-2.5 min-w-40"><Val v={c.gf} /><BelegBadge c={c} feld="gf" /></td>
-                    <td className="px-3 py-2.5 whitespace-nowrap"><Val v={c.telefon} /></td>
-                    <td className="px-3 py-2.5"><ExtLink value={c.website} /></td>
-                    <td className="px-3 py-2.5"><Val v={c.ma} /></td>
-                    <td className="px-3 py-2.5 whitespace-nowrap">{c.breakEven}</td>
-                    <td className="px-3 py-2.5 min-w-56">
-                      {hasWarning(c.hinweis) ? <Badge tone="danger">{c.hinweis}</Badge> : c.hinweis}
+                    <td className="px-4 py-4">
+                      <div className="leading-snug">{c.anlass || <Val v="" />}</div>
+                      {c.einstiegssatz && <div className="mt-2 border-l-2 border-accent/40 pl-3 text-[13px] leading-snug text-muted italic">{c.einstiegssatz}</div>}
                     </td>
-                    <td className="px-3 py-2.5 min-w-40"><ExtLink value={c.quelle} /></td>
+                    <td className="px-4 py-4">
+                      <div className="leading-snug"><Val v={c.gf} /><BelegBadge c={c} feld="gf" /></div>
+                      <div className="mt-1 tabular-nums"><Val v={c.telefon} /></div>
+                      <div className="mt-1 text-xs"><ExtLink value={c.website} /></div>
+                      <div className="mt-1 text-xs text-muted">MA <Val v={c.ma} /></div>
+                    </td>
+                    <td className="px-4 py-4 text-[13px] break-words">
+                      {c.breakEven && <div><span className="text-muted">Break-even </span>{c.breakEven} Aufträge</div>}
+                      {c.hinweis && <div className="mt-1.5">{hasWarning(c.hinweis) ? <Badge tone="danger">{c.hinweis}</Badge> : <span className="text-muted">{c.hinweis}</span>}</div>}
+                      <div className="mt-1.5 text-xs"><ExtLink value={c.quelle} /></div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex justify-end gap-1.5">
+                        <Button className="!px-3 !py-1.5" variant="primary" onClick={() => void decide([c.id], "rein")} aria-label={`${c.name} rein`}>Rein</Button>
+                        <Button className="!px-3 !py-1.5" variant="secondary" onClick={() => void decide([c.id], "raus")} aria-label={`${c.name} raus`}>Raus</Button>
+                      </div>
+                    </td>
                   </tr>
                 );
               })}

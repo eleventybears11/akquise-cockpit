@@ -6,6 +6,7 @@ import { navigate, useSettings } from "../lib/hooks";
 import { abbrechen, starteLauf, useResearch } from "../research/store";
 import { getApiKey } from "../research/key";
 import { Badge, Button, Card } from "../components/ui";
+import { oeffneNeueLeads } from "./NeueLeads";
 
 const MODELL_NAME: Record<string, string> = {
   "claude-opus-5-5": "Opus",
@@ -46,14 +47,17 @@ export function ResearchPanel() {
               ? "Testmodus ist eingeschaltet: erfundene DEMO-Leads, keine Kosten. Für echte Leads unter Einstellungen ausschalten."
               : bereit
                 ? `Echte Recherche mit ${MODELL_NAME[settings.modell]} · nur Leads mit belegter Geschäftsführung, Telefonnummer und Anlass · Kostenlimit ${settings.maxKostenProLauf} $ pro Lauf`
-                : "Für echte Leads fehlt der API-Key. Ohne Key recherchiert die App nicht."}
+                : "Für die automatische Recherche fehlt der API-Key. Ohne Key: Recherche-Auftrag kopieren, in Claude einfügen, Ergebnis importieren."}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           {laeuft ? (
             <Button variant="danger" onClick={abbrechen}>Abbrechen</Button>
           ) : !bereit ? (
-            <Button variant="primary" onClick={() => navigate("einstellungen")}>API-Key eintragen</Button>
+            <>
+              <Button onClick={() => navigate("einstellungen")}>API-Key eintragen</Button>
+              <Button variant="primary" onClick={oeffneNeueLeads}>Ohne Key: mit Claude recherchieren</Button>
+            </>
           ) : (
             <>
               {anzahlLaeufe === 0 && (

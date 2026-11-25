@@ -4,34 +4,36 @@
 
 /* Design-Tokens: hell */
 :root {
-  --bg: #f6f7f9;
+  --bg: #f4f5f7;
   --surface: #ffffff;
-  --surface-2: #f0f2f5;
-  --border: #dde1e7;
-  --text: #14181f;
-  --muted: #5b6573;
-  --accent: #1d4ed8;
-  --accent-soft: #e6edff;
+  --surface-2: #f1f3f6;
+  --border: #e3e6eb;
+  --text: #111827;
+  --muted: #5f6b7a;
+  --accent: #2f5bea;
+  --accent-soft: #eaf0ff;
   --accent-text: #ffffff;
-  --ok: #15803d;
-  --ok-soft: #e5f5ea;
-  --warn: #b45309;
-  --warn-soft: #fdf1e2;
-  --danger: #b91c1c;
-  --danger-soft: #fdeaea;
+  --ok: #157a3d;
+  --ok-soft: #e6f5ec;
+  --warn: #a5560a;
+  --warn-soft: #fdf2e3;
+  --danger: #b42318;
+  --danger-soft: #fdecea;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --shadow-lg: 0 12px 32px -8px rgba(16, 24, 40, 0.18);
   color-scheme: light;
 }
 
 /* Design-Tokens: dunkel */
 [data-theme="dark"] {
-  --bg: #0e1116;
-  --surface: #161a21;
-  --surface-2: #1d222b;
-  --border: #2b323d;
-  --text: #e7eaef;
-  --muted: #98a2b1;
-  --accent: #6d9bff;
-  --accent-soft: #1a2747;
+  --bg: #0d1015;
+  --surface: #151a21;
+  --surface-2: #1c222b;
+  --border: #29303b;
+  --text: #e8ebf0;
+  --muted: #9aa4b2;
+  --accent: #7a9bff;
+  --accent-soft: #1b2648;
   --accent-text: #0b1020;
   --ok: #4ade80;
   --ok-soft: #12291b;
@@ -39,6 +41,8 @@
   --warn-soft: #2d2410;
   --danger: #f87171;
   --danger-soft: #3a1717;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 40px -8px rgba(0, 0, 0, 0.6);
   color-scheme: dark;
 }
 
@@ -58,7 +62,9 @@
   --color-warn-soft: var(--warn-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
-  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-sans: "Inter", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --shadow-card: var(--shadow);
+  --shadow-pop: var(--shadow-lg);
 }
 
 html,
@@ -87,4 +93,18 @@ kbd {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+.shadow-card {
+  box-shadow: var(--shadow);
+}
+
+.shadow-pop {
+  box-shadow: var(--shadow-lg);
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.01em;
 }

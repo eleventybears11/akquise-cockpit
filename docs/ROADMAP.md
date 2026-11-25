@@ -9,6 +9,7 @@ Status: **geplant** → **gebaut** → **getestet** → **deployt**
 | M2 KI-Tagesliste | API-Key (nur lokal), Modellwahl, Gründlichkeit, Kostenlimit; Recherche-Pipeline (Kandidaten per Websuche → Dubletten/Ausschluss → Verifizieren mit Websuche/Abruf → Prüfung → Speichern), Quellenprüfung gegen tatsächliche Suchergebnisse, Fakt/Hypothese/offen je Aussage, Score aus gewichteten Teilscores, Break-even-Szenarien aus Profil-Annahmen, Kosten pro Lauf, Lauf-Protokoll, Testmodus mit DEMO-Daten, Startpaket, Hinweis werktags ab 6 Uhr, Ausschlussliste (CRM-CSV), Recherche-Regeln in den Einstellungen, Lead bearbeiten | gebaut, getestet (Testmodus), deployt; echter API-Lauf von David zu prüfen. 25.11.: ohne Key keine DEMO-Leads mehr, Pflicht GF + Telefon + Anlass, DEMO-Leads löschbar |
 | M3 Gespräch erfassen | Diktat (Web Speech API, de-AT) → strukturierte Notiz, Termin-Übergabe (3 Zeilen), „Rundown vertiefen“ | geplant |
 | M4 CRM & Statistik | „Für CRM kopieren“, CSV für Project Manager, Statistik nach Gewerk/Gebiet/Woche | geplant |
+| UX-Überarbeitung (25.11.2026) | Neue-Leads-Knopf überall, Dialog mit Claude-Recherche-Auftrag (Regeln, bekannte Firmen, CSV-Format), neue Kopfzeile, gruppierte Freigabe-Tabelle, klickbare Lead-Zeilen | gebaut, getestet |
 | später | Sprachbefehle, Obsidian-Markdown-Export, Lernen aus Ergebnissen, Project-Manager-Direktanbindung, Deutschland | geplant |
 
 ## Bekannte Grenzen M1

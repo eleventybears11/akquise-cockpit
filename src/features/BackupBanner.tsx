@@ -15,7 +15,7 @@ export function BackupBanner() {
   if (count === 0 || now.getTime() - last < SEVEN_DAYS) return null;
   return (
     <div className="border-b border-line bg-warn-soft" role="alert">
-      <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm text-warn">
+      <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm text-warn sm:px-6">
         <span>
           {last ? "Dein letztes Backup ist älter als 7 Tage." : "Noch kein Backup."} Die Daten liegen nur in diesem Browser. Wird er zurückgesetzt, sind sie weg.
         </span>
