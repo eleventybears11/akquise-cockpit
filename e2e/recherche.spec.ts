@@ -17,7 +17,7 @@ test("M2: Tagesliste im Testmodus, Belege, Bearbeiten, Ausschlussliste, Backup o
 
   // Ohne Key und ohne Testmodus: keine Recherche, keine DEMO-Daten
   await page.goto("/#/freigabe");
-  await expect(page.getByText("Für echte Leads fehlt der API-Key")).toBeVisible();
+  await expect(page.getByText("Für die automatische Recherche fehlt der API-Key")).toBeVisible();
   await expect(page.getByRole("button", { name: /Tagesliste erzeugen/ })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "API-Key eintragen" })).toBeVisible();
 
@@ -88,4 +88,37 @@ test("DEMO-Leads gesammelt löschen, echte Leads bleiben", async ({ page }) => {
   await expect(page.getByText("1 Leads in der App")).toBeVisible();
   await expect(page.getByTestId("leads-tabelle")).toContainText("Muster Installationen GmbH");
   await expect(page.getByRole("button", { name: /DEMO-Leads löschen/ })).toHaveCount(0);
+});
+
+
+test("Neue Leads: Knopf überall sichtbar, Recherche-Auftrag für Claude kopieren", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/#/import");
+  await page.getByTestId("csv-file").setInputFiles({ name: "echt.csv", mimeType: "text/csv", buffer: Buffer.from('"Nr","Firma","Freigabe"\n"7","Muster Installationen GmbH","Offen"\n') });
+  await page.getByRole("button", { name: "1 Leads importieren" }).click();
+  await expect(page).toHaveURL(/#\/freigabe/);
+
+  for (const view of ["freigabe", "anrufen", "leads", "einstellungen"]) {
+    await page.goto(`/#/${view}`);
+    await expect(page.getByTestId("neue-leads").first()).toBeVisible();
+  }
+
+  await page.goto("/#/leads");
+  await page.getByTestId("neue-leads").first().click();
+  const dialog = page.getByRole("dialog", { name: "Neue Leads" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "API-Key eintragen" })).toBeVisible();
+  await dialog.getByLabel("Anzahl Leads").fill("5");
+  await dialog.getByTestId("auftrag-kopieren").click();
+  await expect(page.getByText("Recherche-Auftrag kopiert")).toBeVisible();
+  const text = await page.evaluate(() => navigator.clipboard.readText());
+  expect(text).toContain("Recherchiere 5 neue B2B-Leads");
+  expect(text).toContain("Muster Installationen GmbH");
+  expect(text).toContain('"Nr","Firma","Freigabe","Score"');
+  expect(text).toContain("Nr fortlaufend ab 8");
+  expect(text).toContain("Lead-Inhaber: David Parikyan");
+
+  await dialog.getByRole("button", { name: "Zum Import" }).click();
+  await expect(page).toHaveURL(/#\/import/);
+  await expect(dialog).toHaveCount(0);
 });

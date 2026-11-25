@@ -23,3 +23,5 @@
 | 25.11.2026 | Ein Lead wird nur übernommen mit belegtem Anlass, GF aus Firmenbuch/WKO/Impressum (Fakt) und belegter Telefonnummer | Davids Vorgabe: richtige Person aus dem richtigen Grund anrufen. Weniger, aber anrufbare Leads. |
 | 25.11.2026 | Knopf „Alle DEMO-Leads löschen“ (Alle Leads, Einstellungen) | Testdaten wieder entfernen, echte Leads bleiben. |
 | 25.11.2026 | Typ-B-Leads mit schwächerem Anlass (Jubiläum, Ehrung, Generationswechsel) erlaubt, in der manuellen Recherche klar als Typ B markiert | Davids Entscheidung für mehr Masse. |
+| 25.11.2026 | Knopf „Neue Leads“ immer in der Kopfzeile, plus in Alle Leads und leeren Ansichten; Dialog mit zwei Wegen: automatisch (API-Key) oder Recherche-Auftrag für Claude kopieren → CSV importieren | David vermisste den Knopf ohne Key. Der Claude-Weg funktioniert ohne API-Kosten. |
+| 25.11.2026 | Layout überarbeitet: zweizeilige Kopfzeile mit Symbol-Navigation, kompakter Tageszähler, Karten mit Schatten, Freigabe-Tabelle in 6 gruppierten Spalten ohne Querscrollen, klickbare Zeilen in Alle Leads, Statusfilter als Reiter | Davids Wunsch: eleganter und UX-freundlicher. |
