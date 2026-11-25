@@ -2,7 +2,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../data/db";
 import type { ResearchRun } from "../data/types";
 import { formatDateTime, isoDate } from "../lib/dates";
-import { useSettings } from "../lib/hooks";
+import { navigate, useSettings } from "../lib/hooks";
 import { abbrechen, starteLauf, useResearch } from "../research/store";
 import { getApiKey } from "../research/key";
 import { Badge, Button, Card } from "../components/ui";
@@ -32,7 +32,8 @@ export function ResearchPanel() {
   const letzte = useLiveQuery(() => db.runs.orderBy("startedAt").reverse().limit(1).first(), []);
   const anzahlLaeufe = useLiveQuery(() => db.runs.count(), [], 0);
   const anzeigen = laeuft ? run : (letzte ?? undefined);
-  const test = settings.testmodus || !getApiKey();
+  const test = settings.testmodus;
+  const bereit = test || !!getApiKey();
   const pct = run ? Math.round((fortschritt.angenommen / Math.max(1, run.ziel)) * 100) : 0;
 
   return (
@@ -42,13 +43,17 @@ export function ResearchPanel() {
           <h2 className="font-semibold">KI-Tagesliste</h2>
           <p className="text-sm text-muted">
             {test
-              ? "Testmodus: erfundene DEMO-Leads, keine Kosten. API-Key unter Einstellungen hinterlegen."
-              : `Recherche mit ${MODELL_NAME[settings.modell]} · Kostenlimit ${settings.maxKostenProLauf} $ pro Lauf`}
+              ? "Testmodus ist eingeschaltet: erfundene DEMO-Leads, keine Kosten. Für echte Leads unter Einstellungen ausschalten."
+              : bereit
+                ? `Echte Recherche mit ${MODELL_NAME[settings.modell]} · nur Leads mit belegter Geschäftsführung, Telefonnummer und Anlass · Kostenlimit ${settings.maxKostenProLauf} $ pro Lauf`
+                : "Für echte Leads fehlt der API-Key. Ohne Key recherchiert die App nicht."}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           {laeuft ? (
             <Button variant="danger" onClick={abbrechen}>Abbrechen</Button>
+          ) : !bereit ? (
+            <Button variant="primary" onClick={() => navigate("einstellungen")}>API-Key eintragen</Button>
           ) : (
             <>
               {anzahlLaeufe === 0 && (

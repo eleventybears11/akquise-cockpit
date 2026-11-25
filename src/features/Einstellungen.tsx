@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { Profile, Settings } from "../data/types";
-import { deleteAll, importExclusions, clearExclusions, isBackup, restoreBackup, saveProfile, updateSettings } from "../data/repo";
+import { deleteAll, deleteDemoLeads, importExclusions, clearExclusions, isBackup, restoreBackup, saveProfile, updateSettings } from "../data/repo";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../data/db";
 import { parseCsv } from "../lib/csv";
@@ -276,6 +276,21 @@ export function Einstellungen() {
           </label>
           {ausschluss > 0 && <Button variant="ghost" onClick={() => void clearExclusions()}>Liste leeren</Button>}
         </div>
+      </Card>
+
+      <Card className="p-5">
+        <h2 className="mb-1 font-semibold">DEMO-Leads aus dem Testmodus löschen</h2>
+        <p className="mb-3 text-sm text-muted">Entfernt alle Leads aus Testläufen und alle Firmen, deren Name mit „DEMO“ beginnt. Echte Leads bleiben erhalten.</p>
+        <Button
+          variant="danger"
+          onClick={async () => {
+            if (!window.confirm("Alle DEMO-Leads endgültig löschen? Echte Leads bleiben erhalten.")) return;
+            const n = await deleteDemoLeads();
+            toast({ text: n ? `${n} DEMO-Leads gelöscht` : "Keine DEMO-Leads vorhanden", tone: "ok" });
+          }}
+        >
+          DEMO-Leads löschen
+        </Button>
       </Card>
 
       <Card className="border-danger/40 p-5">

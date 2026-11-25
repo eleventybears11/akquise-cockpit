@@ -47,7 +47,9 @@ export async function starteLauf(ziel: number): Promise<void> {
   const settings = { ...DEFAULT_SETTINGS, ...(await db.meta.get("settings"))?.value };
   const profile = { ...DEFAULT_PROFILE, ...(await db.profiles.get(settings.aktivesProfil)) };
   const apiKey = getApiKey();
-  const test = settings.testmodus || !apiKey;
+  // Ohne Key keine Recherche – DEMO-Daten nur bei ausdrücklich eingeschaltetem Testmodus
+  if (!settings.testmodus && !apiKey) return;
+  const test = settings.testmodus;
   const modell = test ? "test" : settings.modell;
 
   controller = new AbortController();
@@ -73,7 +75,7 @@ export async function starteLauf(ziel: number): Promise<void> {
           callClaude({ apiKey: apiKey!, modell: settings.modell, aufwand: settings.aufwand, system, prompt, schema: LEAD_SCHEMA, maxSuchen: 6, maxAbrufe: 5, signal }),
       };
 
-  if (test) log(apiKey ? "Testmodus: erfundene DEMO-Daten, keine Kosten." : "Kein API-Key hinterlegt – Testmodus mit DEMO-Daten.", "warn");
+  if (test) log("Testmodus: erfundene DEMO-Daten, keine Kosten.", "warn");
 
   const companies = await db.companies.toArray();
   const exclusions = await db.exclusions.toArray();

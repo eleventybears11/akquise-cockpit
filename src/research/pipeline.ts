@@ -111,6 +111,10 @@ export function bewerte(raw: LeadRaw, k: KandidatRaw, urls: Set<string>, profile
   const telefon = pruefeFeld("telefon", raw.telefon, urls, website);
   const ma = pruefeFeld("mitarbeiter", raw.mitarbeiter, urls, website);
 
+  // Anrufbar heißt: richtige Person, richtige Nummer, richtiger Grund
+  if (gf.status !== "fakt") return { ok: false, grund: "Geschäftsführung nicht aus Firmenbuch, WKO oder Impressum belegt" };
+  if (telefon.status !== "fakt") return { ok: false, grund: "keine belegte Telefonnummer" };
+
   const maZahl = ma.status === "fakt" ? minMa(ma.wert) : undefined;
   if (maZahl !== undefined && maZahl < profile.minMitarbeiter) return { ok: false, grund: `nur ${maZahl} Mitarbeiter (Minimum ${profile.minMitarbeiter})` };
 

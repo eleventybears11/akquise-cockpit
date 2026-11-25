@@ -1,5 +1,13 @@
 import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
+import type { Page } from "@playwright/test";
+
+async function testmodusAn(page: Page) {
+  await page.goto("/#/einstellungen");
+  await page.getByLabel(/Testmodus: erfundene DEMO-Leads/).check();
+  await page.getByRole("button", { name: "Speichern", exact: true }).first().click();
+  await expect(page.getByText("Einstellungen gespeichert")).toBeVisible();
+}
 
 test("M2: Tagesliste im Testmodus, Belege, Bearbeiten, Ausschlussliste, Backup ohne API-Key", async ({ page }) => {
   // Ausschlussliste: eine DEMO-Firma, die der Testmodus sonst vorschlagen würde
@@ -7,9 +15,16 @@ test("M2: Tagesliste im Testmodus, Belege, Bearbeiten, Ausschlussliste, Backup o
   await page.getByTestId("exclusion-file").setInputFiles({ name: "crm.csv", mimeType: "text/csv", buffer: Buffer.from("Firma\nDEMO Testbetrieb 1 GmbH\nIrgendwas KG\n") });
   await expect(page.getByText("2 Firmen in der Ausschlussliste")).toBeVisible();
 
-  // Tagesliste erzeugen (ohne Key → Testmodus)
+  // Ohne Key und ohne Testmodus: keine Recherche, keine DEMO-Daten
   await page.goto("/#/freigabe");
-  await expect(page.getByText("Testmodus: erfundene DEMO-Leads")).toBeVisible();
+  await expect(page.getByText("Für echte Leads fehlt der API-Key")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Tagesliste erzeugen/ })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "API-Key eintragen" })).toBeVisible();
+
+  // Testmodus ausdrücklich einschalten
+  await testmodusAn(page);
+  await page.goto("/#/freigabe");
+  await expect(page.getByText("Testmodus ist eingeschaltet")).toBeVisible();
   await page.getByRole("button", { name: "Tagesliste erzeugen (18)" }).click();
   await expect(page.getByTestId("run-progress")).toBeVisible();
   await expect(page.getByTestId("run-summary")).toContainText("18 von 18 Leads", { timeout: 20_000 });
@@ -54,4 +69,23 @@ test("M2: Tagesliste im Testmodus, Belege, Bearbeiten, Ausschlussliste, Backup o
   expect(backup.runs).toHaveLength(1);
   expect(backup.exclusions).toHaveLength(2);
   expect(backup.companies).toHaveLength(18);
+});
+
+test("DEMO-Leads gesammelt löschen, echte Leads bleiben", async ({ page }) => {
+  await page.goto("/#/import");
+  await page.getByTestId("csv-file").setInputFiles({ name: "echt.csv", mimeType: "text/csv", buffer: Buffer.from('"Firma","Freigabe"\n"Muster Installationen GmbH","Offen"\n') });
+  await page.getByRole("button", { name: "1 Leads importieren" }).click();
+  await expect(page).toHaveURL(/#\/freigabe/);
+  await testmodusAn(page);
+  await page.goto("/#/freigabe");
+  await page.getByRole("button", { name: "Tagesliste erzeugen (18)" }).click();
+  await expect(page.getByTestId("run-summary")).toContainText("18 von 18 Leads", { timeout: 20_000 });
+  await page.goto("/#/leads");
+  await expect(page.getByText("19 Leads in der App")).toBeVisible();
+  page.once("dialog", (d) => void d.accept());
+  await page.getByRole("button", { name: "Alle DEMO-Leads löschen (18)" }).click();
+  await expect(page.getByText("18 DEMO-Leads gelöscht")).toBeVisible();
+  await expect(page.getByText("1 Leads in der App")).toBeVisible();
+  await expect(page.getByTestId("leads-tabelle")).toContainText("Muster Installationen GmbH");
+  await expect(page.getByRole("button", { name: /DEMO-Leads löschen/ })).toHaveCount(0);
 });
