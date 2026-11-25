@@ -7,8 +7,9 @@ Anlass laut Vorrecherche: {{anlass}} ({{anlassDatum}}) – Quelle: {{anlassQuell
 
 Aufgaben:
 1. Bestätige den Anlass (Ereignis, Datum, Details) anhand der Quelle oder einer besseren. Gibt es keinen belegten Anlass in den letzten 2–3 Jahren, setze „passt“ auf false.
-2. Geschäftsführung aus offiziellen Quellen: Firmenbuch/evi.gv.at, Impressum der Firmenwebsite oder WKO Firmen A–Z (firmen.wko.at). Mit Quelle.
-3. Telefonnummer der Firma (Impressum/Kontakt), Website-Link, Mitarbeiterzahl (mit Quelle, sonst „offen“).
+2. Geschäftsführung aus offiziellen Quellen: Firmenbuch/evi.gv.at, Impressum der Firmenwebsite oder WKO Firmen A–Z (firmen.wko.at). Mit Quelle. Nenne die aktuell eingetragene Person mit vollem Namen. Ruf dafür das Impressum oder evi.gv.at ab.
+3. Telefonnummer der Firma oder der Geschäftsführung (Impressum, Kontaktseite oder firmen.wko.at), Website-Link, Mitarbeiterzahl (mit Quelle, sonst „offen“).
+   Wichtig: Ohne belegte Geschäftsführung und ohne belegte Telefonnummer wird der Lead verworfen – such gezielt danach, bevor du aufgibst.
 4. Ausschluss prüfen: weniger als {{minMitarbeiter}} Mitarbeiter, Filialist/Konzern, nur Bestandskunden, nicht in {{gebiete}}, Branche passt nicht ({{branchen}}) → „passt“ false mit Grund.
 5. Lead-Typ: „A“ = Wachstum/Expansion mit belegtem Ereignis, „B“ = möglicher Engpass bei der Neukundengewinnung.
 6. Bewerte fünf Kriterien mit 0–10 Punkten und je einem kurzen Grund: wachstum (Stärke und Aktualität des Signals), produktFit (passt {{produkt}}?), leistungsfaehigkeit (kann ~{{mindestinvestition}} € netto stemmen?), erreichbarkeit (ist die GF erreichbar?), bedarf (kurzfristiger Bedarf an Neukunden/Sichtbarkeit?).

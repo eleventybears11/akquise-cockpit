@@ -102,9 +102,13 @@ describe("Bewertung eines Kandidaten", () => {
     expect(bewerte({ ...raw, passt: false, ausschlussgrund: "Konzern" }, k, urls, DEFAULT_PROFILE, new Set(), "r", 1, now)).toMatchObject({ ok: false, grund: "Konzern" });
   });
 
-  it("setzt erfundene Nummern auf offen", () => {
-    const v = bewerte({ ...raw, telefon: { wert: "0699 999", status: "fakt", quelleUrl: "https://nirgends.example" } }, k, urls, DEFAULT_PROFILE, new Set(), "r", 1, now);
-    expect(v.ok && v.lead.telefon).toBe("offen");
+  it("verwirft Leads ohne belegte Telefonnummer oder Geschäftsführung", () => {
+    // erfundene Nummer (Quelle nie gesehen) → offen → nicht anrufbar
+    expect(bewerte({ ...raw, telefon: { wert: "0699 999", status: "fakt", quelleUrl: "https://nirgends.example" } }, k, urls, DEFAULT_PROFILE, new Set(), "r", 1, now)).toMatchObject({ ok: false, grund: "keine belegte Telefonnummer" });
+    // GF nur aus einem Zeitungsartikel → Hypothese → nicht übernommen
+    const presse = seen("https://n.example/1", "https://x.example/impressum", "https://zeitung.example/artikel");
+    expect(bewerte({ ...raw, gf: { wert: "Max Demo", status: "fakt", quelleUrl: "https://zeitung.example/artikel" } }, k, presse, DEFAULT_PROFILE, new Set(), "r", 1, now)).toMatchObject({ ok: false, grund: expect.stringContaining("Geschäftsführung") });
+    expect(bewerte({ ...raw, gf: { wert: "", status: "offen", quelleUrl: "" } }, k, urls, DEFAULT_PROFILE, new Set(), "r", 1, now)).toMatchObject({ ok: false });
   });
 });
 

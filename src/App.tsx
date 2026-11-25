@@ -16,6 +16,7 @@ import { BackupBanner } from "./features/BackupBanner";
 import { Hilfe } from "./features/Hilfe";
 import { useTageslisteFaellig } from "./features/ResearchPanel";
 import { starteLauf, useResearch } from "./research/store";
+import { getApiKey } from "./research/key";
 
 const NAV: { view: Route["view"]; label: string; key: string }[] = [
   { view: "freigabe", label: "Freigabe", key: "f" },
@@ -100,7 +101,8 @@ function TageslisteBanner() {
   const settings = useSettings();
   const faellig = useTageslisteFaellig(now);
   const { laeuft } = useResearch();
-  if (!faellig || laeuft) return null;
+  const bereit = settings.testmodus || !!getApiKey();
+  if (!faellig || laeuft || !bereit) return null;
   return (
     <div className="border-b border-line bg-accent-soft">
       <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-2 px-4 py-2 text-sm text-accent">

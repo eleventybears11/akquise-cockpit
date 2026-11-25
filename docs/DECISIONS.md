@@ -19,3 +19,7 @@
 | 17.11.2026 | Belege (Fakt/Hypothese/offen + Quelle) als Feld `belege` am Lead statt eigener Tabelle | Einfacher, reicht für Anzeige und Prüfung; Tabelle bei Bedarf später per Migration. |
 | 17.11.2026 | Namen/Nummern/MA ohne Quelle aus den Suchergebnissen → „offen“; GF ohne offizielle Quelle/Impressum → „Hypothese“ | Harte Regel 1 aus CLAUDE.md. |
 | 17.11.2026 | Anthropic-SDK wird erst bei Bedarf nachgeladen | App-Start ~40 % kleiner. |
+| 25.11.2026 | Kein automatischer Testmodus mehr ohne API-Key; DEMO-Daten nur bei ausdrücklich eingeschaltetem Testmodus | David bekam ungewollt DEMO-Leads. Ohne Key zeigt die App „API-Key eintragen“. |
+| 25.11.2026 | Ein Lead wird nur übernommen mit belegtem Anlass, GF aus Firmenbuch/WKO/Impressum (Fakt) und belegter Telefonnummer | Davids Vorgabe: richtige Person aus dem richtigen Grund anrufen. Weniger, aber anrufbare Leads. |
+| 25.11.2026 | Knopf „Alle DEMO-Leads löschen“ (Alle Leads, Einstellungen) | Testdaten wieder entfernen, echte Leads bleiben. |
+| 25.11.2026 | Typ-B-Leads mit schwächerem Anlass (Jubiläum, Ehrung, Generationswechsel) erlaubt, in der manuellen Recherche klar als Typ B markiert | Davids Entscheidung für mehr Masse. |

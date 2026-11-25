@@ -206,6 +206,25 @@ export async function restoreBackup(backup: Backup): Promise<void> {
   await ensureDefaults();
 }
 
+/** DEMO-Leads aus dem Testmodus (und Testläufe) erkennen. */
+export function isDemoLead(c: Company, testRunIds: Set<string>): boolean {
+  return (!!c.runId && testRunIds.has(c.runId)) || /^DEMO\b/i.test(c.name.trim());
+}
+
+/** Löscht alle DEMO-Leads samt Anrufen/Anreicherungen und die Testläufe. Liefert die Anzahl gelöschter Leads. */
+export async function deleteDemoLeads(): Promise<number> {
+  return db.transaction("rw", [db.companies, db.calls, db.enrichments, db.runs], async () => {
+    const testRuns = (await db.runs.toArray()).filter((r) => r.modell === "test").map((r) => r.id);
+    const testRunIds = new Set(testRuns);
+    const ids = (await db.companies.toArray()).filter((c) => isDemoLead(c, testRunIds)).map((c) => c.id);
+    await db.calls.where("companyId").anyOf(ids).delete();
+    await db.enrichments.where("companyId").anyOf(ids).delete();
+    await db.companies.bulkDelete(ids);
+    await db.runs.bulkDelete(testRuns);
+    return ids.length;
+  });
+}
+
 export async function deleteAll(): Promise<void> {
   await db.transaction("rw", db.companies, db.calls, db.enrichments, async () => {
     await Promise.all([db.companies.clear(), db.calls.clear(), db.enrichments.clear()]);

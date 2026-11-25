@@ -4,7 +4,9 @@ import { db } from "../data/db";
 import type { LeadStatus } from "../data/types";
 import { normalizeName } from "../lib/normalize";
 import { formatDate } from "../lib/dates";
-import { Badge, Empty, PageHeader, ScoreBadge, Val } from "../components/ui";
+import { Badge, Button, Empty, PageHeader, ScoreBadge, Val } from "../components/ui";
+import { deleteDemoLeads, isDemoLead } from "../data/repo";
+import { toast } from "../lib/toast";
 
 const FILTERS: { value: LeadStatus | "alle"; label: string }[] = [
   { value: "alle", label: "Alle" },
@@ -29,7 +31,14 @@ export function Leads() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<LeadStatus | "alle">("alle");
   const all = useLiveQuery(() => db.companies.toArray(), []);
+  const testRunIds = useLiveQuery(async () => new Set((await db.runs.toArray()).filter((r) => r.modell === "test").map((r) => r.id)), [], new Set<string>());
   if (!all) return null;
+  const demoCount = all.filter((c) => isDemoLead(c, testRunIds)).length;
+  const demoLoeschen = async () => {
+    if (!window.confirm(`${demoCount} DEMO-Leads aus dem Testmodus endgültig löschen? Echte Leads bleiben erhalten.`)) return;
+    const n = await deleteDemoLeads();
+    toast({ text: `${n} DEMO-Leads gelöscht`, tone: "ok" });
+  };
 
   const needle = normalizeName(q);
   const rows = all
@@ -40,7 +49,11 @@ export function Leads() {
 
   return (
     <div>
-      <PageHeader title="Alle Leads" sub={`${all.length} Leads in der App`} />
+      <PageHeader
+        title="Alle Leads"
+        sub={`${all.length} Leads in der App`}
+        actions={demoCount > 0 ? <Button variant="danger" onClick={() => void demoLoeschen()}>Alle DEMO-Leads löschen ({demoCount})</Button> : undefined}
+      />
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <input
           type="search"
